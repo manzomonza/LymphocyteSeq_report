@@ -1,0 +1,337 @@
+---
+title: Pan TCR analysis
+author: University Hospital Basel -- Molecular Diagnostic Unit
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    highlight: zenburn
+params:
+  filedir: ""
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load libs and data
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(gridExtra)
+library(data.table)
+library(tidyverse)
+library(janitor)
+```
+
+
+```{r, include=FALSE}
+filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv")
+
+checkTCRclonesummary <- function(clonesummary_filepath){
+  file1 = data.table::fread(clonesummary_filepath)
+  TCR_gamma = c(all(grepl("TRGV",file1$Variable)),all(grepl("TRGJ",file1$Joining)) )
+  index = ifelse(all(TCR_gamma == TRUE), 1,2)
+  return(index)
+}
+
+indeces <- unname(sapply(filepaths, checkTCRclonesummary))
+if(indeces[1] != indeces[2]){
+  filepaths <- filepaths[unname(sapply(filepaths, checkTCRclonesummary))]
+}else{
+  "ERROR: Both input files address same TCR chain"
+}
+
+```
+
+
+
+```{r prep, include=FALSE}
+clo = read.table(filepaths[1], header = TRUE,stringsAsFactors=TRUE, sep = ",")
+
+
+# Prep: ratio rank1 versus rank2 read counts
+top.counts<-clo %>%
+  filter(Rank == 1 ) %>%
+  summarize(Total.Counts)
+
+second.counts<-clo %>%
+  filter(Rank == 2 ) %>%
+  summarize(Total.Counts)
+
+third.counts<-clo %>%
+  filter(Rank == 3 ) %>%
+  summarize(Total.Counts)
+
+fifth.counts<-clo %>%
+  filter(Rank == 5 ) %>%
+  summarize(Total.Counts)
+
+avg.counts<-clo %>%
+  filter(Rank != 1 & Rank != 2 ) %>%
+  summarize(mean(Total.Counts))
+
+# add color to indicate top clone
+clo <- clo %>%
+  add_column(top = if_else(.$Rank == 1, TRUE, FALSE))
+
+#strand bias
+clo <- clo %>%
+  mutate(log2_strand = log(Plus.Counts/ Minus.Counts))
+
+
+## Generate clone summary table
+clo_table<-clo %>% select(Variable,Joining,CDR3.AA,CDR3.NT,Total.Counts,Frequency,Rank)
+
+## Generate clone summary table, top 25 clones
+clo_table_25<-clo_table %>% filter(Rank<26)
+clo
+```
+<br>
+
+## TCR-Gamma Results
+
+<br>
+
+- Total Read Count = `r clo %>%  summarize(Total.Read.Count = sum(Total.Counts))`
+
+- Total Number of Clones Detected = `r nrow(clo)`
+
+- Largest clone frequency = `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency)`
+
+- Background:
+
+    - rank2 clone frequency = `r clo %>% filter(Rank == 2 ) %>% summarize(Frequency)`
+
+    - rank3 clone frequency = `r clo %>% filter(Rank == 3 ) %>% summarize(Frequency)`
+
+    - average background frequency = `r clo %>% filter(Rank != 1 & Rank != 2 ) %>%  summarize(mean(Frequency))`
+
+- Ratio largest clone to:
+
+    - rank2 clone frequency = `r top.counts/second.counts`
+    
+    - rank3 clone frequency = `r top.counts/third.counts`
+
+    - average background frequency = `r top.counts/avg.counts`
+
+<br>
+
+*Note: Rank2 clone frequency represents the highest background clone frequency in monoclonal samples, Rank3 clone frequency represents the highest background clone frequency in biclonal samples.*
+*The average background frequency was calculated by excluding rank1 and rank2 clones.*
+
+\newpage
+
+#### Top 25 Clones Summary Table
+
+```{r echo = FALSE, results = 'asis'}
+
+clo_table_25 %>%
+  kable("html", digits=3) %>%
+  kable_styling(font_size = 12)
+```
+<br>
+
+\newpage
+
+```{r, echo=FALSE, fig.cap="**Figure 1.** (Left panel) Total read counts per clone. (Right panel) Clone frequency indicated as ratio of read counts per clone on total read counts of the library. Red and blue dotted line are set at 10% and 1% of clone frequency. Largest clone is colored in blue. Productive reads are defined as having an in-frame CDR3 sequence and no stop codon"}
+
+# dot plot with read counts of productive and unproductive reads
+
+r.counts<-ggplot(clo, aes(x=Functionality, y=Total.Counts, color=top)) + 
+  geom_jitter(width=0.25, alpha=0.7, size=2.5)  +
+  ggtitle("Total Read Counts") + theme(plot.title = element_text(size=12, face="bold"),
+                                       axis.title.x = element_blank(),
+                                       axis.title.y = element_text(),
+                                       legend.position = "none")
+
+
+# dot plot with clone frequency productive and unproductive reads
+clo.fr <- ggplot(clo, aes(x=Functionality, y=Frequency, color = top)) +
+  geom_jitter(width=0.25, alpha=0.7, size=2.5) + ylim (0,0.50) + 
+  geom_hline(yintercept=0.1, linetype="dashed", color = "red", size=1) + 
+  geom_hline(yintercept=0.01, linetype="dashed", color = "blue",size=1) +
+  ggtitle("Clone Frequency") + theme(plot.title = element_text(size=12, face="bold"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(),
+    legend.position = "none")
+
+### FIGURE 1 - plot
+grid.arrange(r.counts,clo.fr,ncol=2,nrow=1)
+
+```
+<br>
+
+
+
+```{r, echo=FALSE, fig.cap = "**Figure 2**. (Left panel) Clone frequency versus rank. Blue dotted line is set at 1% of clone frequency. (Right panel) Strand bias of reads is shown as log2(strand_bias) versus rank. Largest clone is colored in blue."}
+
+# scatter plot of frequency versus rank
+clo.fr.scatter<-ggplot(clo, aes(x=Rank, y=Frequency, color = top)) + geom_point() + scale_x_log10() + 
+  geom_hline(yintercept=0.01, linetype="dashed", size=1, color = "blue") +
+  ggtitle("Clone Frequency versus Rank") + theme(plot.title = element_text(size=12, face="bold"),
+                                                 legend.position = "none")
+# check if top clone has strong bias
+
+strand.b<-clo %>% 
+  ggplot(aes(Rank, log2_strand)) +
+  geom_point(aes(col = top)) + 
+  scale_x_log10() +
+  ggtitle("Strand bias")+ theme(plot.title = element_text(size=12, face="bold"),
+                                legend.position = "none")
+
+
+### FIGURE 2 - plot
+grid.arrange(clo.fr.scatter,strand.b,ncol=2,nrow=1)
+```
+<br>
+
+\newpage
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+clob = read.table(filepaths[2], header = TRUE,stringsAsFactors=TRUE, sep = ",")
+
+# Prep: ratio rank1 versus rank2 read counts
+btop.counts<-clob %>%
+  filter(Rank == 1 ) %>%
+  summarize(Total.Counts)
+
+bsecond.counts<-clob %>%
+  filter(Rank == 2 ) %>%
+  summarize(Total.Counts)
+
+bthird.counts<-clob %>%
+  filter(Rank == 3 ) %>%
+  summarize(Total.Counts)
+
+bfifth.counts<-clob %>%
+  filter(Rank == 5 ) %>%
+  summarize(Total.Counts)
+
+bavg.counts<-clob %>%
+  filter(Rank != 1 & Rank != 2 ) %>%
+  summarize(mean(Total.Counts))
+
+# add color to indicate top clone
+clob <- clob %>%
+  add_column(top = if_else(.$Rank == 1, TRUE, FALSE))
+
+#strand bias
+clob <- clob %>%
+  mutate(log2_strand = log(Plus.Counts/ Minus.Counts))
+
+
+## Generate clone summary table
+clob_table<-clob %>% select(Variable,Joining,CDR3.AA,CDR3.NT,Total.Counts,Frequency,Rank)
+
+## Generate clone summary table, top 25 clones
+clob_table_25<-clob_table %>% filter(Rank<26)
+```
+<br>
+
+## TCR-Beta Results
+
+<br>
+
+- Total Read Count = `r clob %>%  summarize(Total.Read.Count = sum(Total.Counts))`
+
+- Total Number of Clones Detected = `r nrow(clob)`
+
+- Largest clone frequency = `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency)`
+
+- Background:
+
+    - rank2 clone frequency = `r clob %>% filter(Rank == 2 ) %>% summarize(Frequency)`
+
+    - rank3 clone frequency = `r clob %>% filter(Rank == 3 ) %>% summarize(Frequency)`
+
+    - average background frequency = `r clob %>% filter(Rank != 1 & Rank != 2 ) %>%  summarize(mean(Frequency))`
+
+- Ratio largest clone to:
+
+    - rank2 clone frequency = `r btop.counts/bsecond.counts`
+    
+    - rank3 clone frequency = `r btop.counts/bthird.counts`
+
+    - average background frequency = `r btop.counts/bavg.counts`
+
+<br>
+
+*Note: Rank2 clone frequency represents the highest background clone frequency in monoclonal samples, Rank3 clone frequency represents the highest background clone frequency in biclonal samples.*
+*The average background frequency was calculated by excluding rank1 and rank2 clones.*
+
+
+\newpage
+
+#### Top 25 Clones Summary Table
+
+```{r echo = FALSE, results = 'asis'}
+
+clob_table_25 %>%
+  kable("html", digits=3) %>%
+  kable_styling(font_size = 12)
+```
+<br>
+
+\newpage
+
+```{r, echo=FALSE, fig.cap="**Figure 1.** (Left panel) Total read counts per clone. (Right panel) Clone frequency indicated as ratio of read counts per clone on total read counts of the library. Red and blue dotted line are set at 10% and 1% of clone frequency. Largest clone is colored in blue. Productive reads are defined as having an in-frame CDR3 sequence and no stop codon"}
+
+# dot plot with read counts of productive and unproductive reads
+
+r.counts<-ggplot(clob, aes(x=Functionality, y=Total.Counts, color=top)) + 
+  geom_jitter(width=0.25, alpha=0.7, size=2.5)  +
+  ggtitle("Total Read Counts") + theme(plot.title = element_text(size=12, face="bold"),
+                                       axis.title.x = element_blank(),
+                                       axis.title.y = element_text(),
+                                       legend.position = "none")
+
+
+# dot plot with clone frequency productive and unproductive reads
+clob.fr <- ggplot(clob, aes(x=Functionality, y=Frequency, color = top)) +
+  geom_jitter(width=0.25, alpha=0.7, size=2.5) + ylim (0,0.50) + 
+  geom_hline(yintercept=0.1, linetype="dashed", color = "red", size=1) + 
+  geom_hline(yintercept=0.01, linetype="dashed", color = "blue",size=1) +
+  ggtitle("Clone Frequency") + theme(plot.title = element_text(size=12, face="bold"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(),
+    legend.position = "none")
+
+### FIGURE 1 - plot
+grid.arrange(r.counts,clob.fr,ncol=2,nrow=1)
+
+```
+<br>
+
+```{r, echo=FALSE, fig.cap = "**Figure 2**. (Left panel) Clone frequency versus rank. Blue dotted line is set at 1% of clone frequency. (Right panel) Strand bias of reads is shown as log2(strand_bias) versus rank. Largest clone is colored in blue."}
+
+# scatter plot of frequency versus rank
+clob.fr.scatter<-ggplot(clob, aes(x=Rank, y=Frequency, color = top)) + geom_point() + scale_x_log10() + 
+  geom_hline(yintercept=0.01, linetype="dashed", size=1, color = "blue") +
+  ggtitle("Clone Frequency versus Rank") + theme(plot.title = element_text(size=12, face="bold"),
+                                                 legend.position = "none")
+# check if top clone has strong bias
+
+strand.b<-clob %>% 
+  ggplot(aes(Rank, log2_strand)) +
+  geom_point(aes(col = top)) + 
+  scale_x_log10() +
+  ggtitle("Strand bias")+ theme(plot.title = element_text(size=12, face="bold"),
+                                legend.position = "none")
+
+
+### FIGURE 2 - plot
+grid.arrange(clob.fr.scatter,strand.b,ncol=2,nrow=1)
+```
+
+\newpage
+
+## Kommentar
+
+Um eine Probe als monoklonal oder biklonal zu klassifizieren, müssen die dominanten Sequenzen mehr als 2.5% der gesamten Reads und mehr als 
+das 10x des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126). 
+
+Das dominante Rearrangement dieser Probe wurde mit `r clo %>% filter(Rank == 1 ) %>% summarize(Total.Counts)` (gamma) / `r clob %>% filter(Rank == 1 ) %>% summarize(Total.Counts)` (beta) Read Counts bei einer Gesamtanzahl von `r clo %>%  summarize(Total.Read.Count = sum(Total.Counts))` (gamma) / `r clob %>%  summarize(Total.Read.Count = sum(Total.Counts))` (beta) Read Counts nachgewiesen, was eine Frequenz von `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency)` für T-Zell-Rezeptor-gamma und `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency)` für T-Zell-Rezeptor-beta ergibt. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt `r top.counts/third.counts`x (gamma) und `r btop.counts/bthird.counts`x (beta), was im Vergleich zum empfohlenen Wert von 10x für die Bestimmung der Klonalität niedrig ist.
+
