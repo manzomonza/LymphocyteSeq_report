@@ -5,14 +5,16 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     toc: true
+    toc_float: true
     highlight: zenburn
 params:
   filedir: ""
-
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 # Load libs and data
 library(knitr)
@@ -26,17 +28,39 @@ library(janitor)
 
 
 ```{r, include=FALSE}
-filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv")
+## List clone summary filepaths in working directory
+## params$filedir specifies directory as given by Watchdog
+
+filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv",
+                        full.names = TRUE,
+                        recursive = FALSE)
+
+print(filepaths)
+```
+
+
+```{r, include=FALSE}
+filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv",
+                        full.names = TRUE,
+                        recursive = FALSE)
 
 checkTCRclonesummary <- function(clonesummary_filepath){
   file1 = data.table::fread(clonesummary_filepath)
-  TCR_gamma = c(all(grepl("TRGV",file1$Variable)),all(grepl("TRGJ",file1$Joining)) )
-  index = ifelse(all(TCR_gamma == TRUE), 1,2)
+  ## Line checks if all rows in checked clone summary file (file1) contain "TRG" information, i.e. TCR_gamma
+  TCR_gamma_true = c(all(grepl("TRGV",file1$Variable)), all(grepl("TRGJ",file1$Joining)) )
+  # if all entries are TRUE, return  1, else 2
+  index = ifelse(all(TCR_gamma_true == TRUE), 1,2)
   return(index)
 }
 
+## Check the results for the filepaths
 indeces <- unname(sapply(filepaths, checkTCRclonesummary))
+
+## If the indeces do not correspond, the assumption is:
+## there's one gamma and one beta TCR clone summary filepresent
 if(indeces[1] != indeces[2]){
+  ## This orders the 'filepaths' by indeces, 
+  ## i.e. TCR gamme filepath first (hence the 1), TCR beta second (auto 2 in checkTCRclonesummary)
   filepaths <- filepaths[unname(sapply(filepaths, checkTCRclonesummary))]
 }else{
   "ERROR: Both input files address same TCR chain"
@@ -44,50 +68,139 @@ if(indeces[1] != indeces[2]){
 
 ```
 
+```{r}
+# Frequency vs CD3 NT length
+
+length_vs_frequency <- function(clonesummary){
+  
+  TCR_gamma_true = c(all(grepl("TRGV",clonesummary$Variable)), all(grepl("TRGJ", clonesummary$Joining)) )
+  
+  if(all(TCR_gamma_true)){
+    sequencing = "gamma"
+  }else{
+    sequencing = "beta"
+  }
+  
+  clonesummary$CDR3.NT <- as.character(clonesummary$CDR3.NT)
+  clonesummary$cdr3_nt_length = nchar(clonesummary$CDR3.NT)
+  pois_tb <- tibble(cdr3_nt_length = rpois(nrow(clonesummary), lambda =
+                                             mean(clonesummary$cdr3_nt_length))) %>%
+    janitor::tabyl(cdr3_nt_length) %>%
+    dplyr::rename(Frequency = percent) %>%
+    dplyr::mutate(data = "Poisson")
+  
+  pp <- clonesummary %>% 
+    dplyr::mutate(data = "TCR sequencing") %>% 
+    dplyr::select(Frequency,cdr3_nt_length, data ) %>%
+    dplyr::bind_rows(., pois_tb) %>%
+    ggplot(aes(cdr3_nt_length, Frequency, fill = data)) +
+    geom_col(position = "dodge") +
+    labs(title = paste0("Frequencies of CDR3 Lengths of TCR ", sequencing, " clones"),
+         subtitle = "Poisson distribution CDR3 nucleotide lengths is also displayed",
+         x = "CDR3 nucleotide length")
+  return(pp)
+}
+
+```
 
 
-```{r prep, include=FALSE}
+
+```{r}
 clo = read.table(filepaths[1], header = TRUE,stringsAsFactors=TRUE, sep = ",")
-
+clob = read.table(filepaths[2], header = TRUE,stringsAsFactors=TRUE, sep = ",")
+# Prep: ratio rank1 versus rank2 read count
 
 # Prep: ratio rank1 versus rank2 read counts
-top.counts<-clo %>%
-  filter(Rank == 1 ) %>%
-  summarize(Total.Counts)
+clone_counts <- function(clone_summary){
+  total_counts = clone_summary %>% 
+    dplyr::filter(Rank %in% 1:5) %>% 
+    dplyr::group_by(Rank) %>% 
+    dplyr::summarise(sum_total_counts = sum(Total.Counts))
+  
+  rank_counts = total_counts$sum_total_counts
+  names(rank_counts) = 1:5
+  return(rank_counts)
+}
 
-second.counts<-clo %>%
-  filter(Rank == 2 ) %>%
-  summarize(Total.Counts)
+##### TESTING
 
-third.counts<-clo %>%
-  filter(Rank == 3 ) %>%
-  summarize(Total.Counts)
+# Add annotation to clone summary file
+annotate<- function(clone_summary){clone_summary %>%
+    add_column(top = if_else(.$Rank == 1, TRUE, FALSE)) %>%
+  mutate(log2_strand = log2(Plus.Counts/ Minus.Counts))} 
 
-fifth.counts<-clo %>%
-  filter(Rank == 5 ) %>%
-  summarize(Total.Counts)
+# Generate clone summary table
+clo_table<-function(clone_summary,ntop){
+  clone_summary %>% 
+    select(Variable,Joining,CDR3.AA,CDR3.NT,Total.Counts,Frequency,Rank) %>% 
+    filter(Rank<ntop)}
 
-avg.counts<-clo %>%
-  filter(Rank != 1 & Rank != 2 ) %>%
-  summarize(mean(Total.Counts))
+# Use the functions
 
-# add color to indicate top clone
-clo <- clo %>%
-  add_column(top = if_else(.$Rank == 1, TRUE, FALSE))
+gamma_clone_counts <- clone_counts(clo)
+beta_clone_counts <- clone_counts(clob)
 
-#strand bias
-clo <- clo %>%
-  mutate(log2_strand = log(Plus.Counts/ Minus.Counts))
+clo <- annotate(clo)
+clob <- annotate(clob)
+
+gamma_table <- clo_table(clo, ntop = 26)
+beta_table <- clo_table(clob, ntop = 26)
+
+# to make it shorter below
+rank1G = gamma_clone_counts[which(names(gamma_clone_counts) == 1)]
+rank2G = gamma_clone_counts[which(names(gamma_clone_counts) == 2)]
+rank3G = gamma_clone_counts[which(names(gamma_clone_counts) == 3)]
+rank4G = gamma_clone_counts[which(names(gamma_clone_counts) == 4)]
+rank5G = gamma_clone_counts[which(names(gamma_clone_counts) == 5)]
+
+rank1B = beta_clone_counts[which(names(beta_clone_counts) == 1)]
+rank2B = beta_clone_counts[which(names(beta_clone_counts) == 2)]
+rank3B = beta_clone_counts[which(names(beta_clone_counts) == 3)]
+rank4B = beta_clone_counts[which(names(beta_clone_counts) == 4)]
+rank5B = beta_clone_counts[which(names(beta_clone_counts) == 5)]
 
 
-## Generate clone summary table
-clo_table<-clo %>% select(Variable,Joining,CDR3.AA,CDR3.NT,Total.Counts,Frequency,Rank)
-
-## Generate clone summary table, top 25 clones
-clo_table_25<-clo_table %>% filter(Rank<26)
-clo
 ```
+
 <br>
+
+## Diagnose
+Resultat der Parallelsequenzierung mit dem Oncomine TCR Pan-Clonality Assay (DNA):
+
+Anzahl der nachgewiesenen Rearrangements: `r nrow(clo)` T-Zell-Rezeptor-gamma/ `r nrow(clob)` T-Zell-Rezeptor-beta
+
+T-Zell-Rezeptor-gamma: kein Nachweis einer T-Zellklonalität/ dominantes Rearrangement mit `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% Frequenz vor polyklonalem Hintergrund
+
+T-Zell-Rezeptor-beta: kein Nachweis einer T-Zellklonalität/ dominantes Rearrangement mit `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% Frequenz vor polyklonalem Hintergrund
+
+<br>
+
+## Kommentar
+
+Das häufigste Rearrangement dieser Probe wurde mit einer Frequenz von `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% für T-Zell-Rezeptor-gamma und `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% für T-Zell-Rezeptor-beta nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt `r round(rank1G/rank5G,digits=1)`x (gamma) und `r round(rank1B/rank5B,digits=1)`x (beta). 
+
+Um eine Probe als monoklonal oder biklonal zu klassifizieren, müssen die dominanten Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
+
+<br>
+
+## Methodik
+Sequenz des dominanten Rearrangements am T-Zell-Rezeptor-gamma-Locus:
+
+`r clo %>% filter(Rank == 1 ) %>% summarize(Variable, Joining, CDR3.AA, CDR3.NT)`
+
+Sequenz des dominanten Rearrangements am T-Zell-Rezeptor-beta-Locus:
+
+`r clob %>% filter(Rank == 1 ) %>% summarize(Variable, Joining, CDR3.AA, CDR3.NT)`
+
+DNA wurde vom eingesandten Material extrahiert. Amplifikation der Zielsequenzen und Parallelsequenzierung (Next-Generation Sequencing) den genomischen T-Zell-Rezeptors (TCR) Gamma und Beta-Regionen auf der Ion Torrent S5 Plattform unter Verwendung des Ion Torrent TCR Pan-Clonality Assays. Der Assay ermöglicht die Bestimmung der Sequenzen der complementarity-determining Region 3 (CDR3) der TCR-Gamma und Beta-Kette. Der Oncomine TCR Pan-Clonality Assay verwendet Multiplex-Ion-Ampliseq-Primers, die auf die FR3-Region des variablen Gens (V-Gen) und die joining Gensegmente (J-Gen) der TCR Gamma und Beta-Rearrangements abzielen und ein ~75-100 bp-Amplikon produzieren. Datenanalyse mittels Torrent Suite und Ion Reporter Software.
+ 
+Dieser Assay ist noch nicht für die Routine-Diagnostik validiert worden.
+
+Das molekularpathologische Labor nimmt im Rahmen der Qualitätssicherung regelmässig an Ringversuchen von EMQN und QuiP mit Erfolg teil. 
+
+Für weitere Informationen siehe: www.unispital-basel.ch/molpathologie
+
+\newpage
 
 ## TCR-Gamma Results
 
@@ -97,23 +210,28 @@ clo
 
 - Total Number of Clones Detected = `r nrow(clo)`
 
-- Largest clone frequency = `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency)`
+- Largest clone frequency = `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
 
 - Background:
 
-    - rank2 clone frequency = `r clo %>% filter(Rank == 2 ) %>% summarize(Frequency)`
+    - rank2 clone frequency = `r clo %>% filter(Rank == 2 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
 
-    - rank3 clone frequency = `r clo %>% filter(Rank == 3 ) %>% summarize(Frequency)`
+    - rank3 clone frequency = `r clo %>% filter(Rank == 3 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
+    
+    - rank4 clone frequency = `r clo %>% filter(Rank == 4 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
 
-    - average background frequency = `r clo %>% filter(Rank != 1 & Rank != 2 ) %>%  summarize(mean(Frequency))`
+    - rank5 clone frequency = `r clo %>% filter(Rank == 5 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
 
 - Ratio largest clone to:
 
-    - rank2 clone frequency = `r top.counts/second.counts`
+    - rank2 clone frequency = `r round(rank1G/rank2G, digits = 1)`x
     
-    - rank3 clone frequency = `r top.counts/third.counts`
+    - rank3 clone frequency = `r round(rank1G/rank3G, digits = 1)`x
+    
+    - rank4 clone frequency = `r round(rank1G/rank4G, digits = 1)`x
+    
+    - rank5 clone frequency = `r round(rank1G/rank5G, digits = 1)`x
 
-    - average background frequency = `r top.counts/avg.counts`
 
 <br>
 
@@ -126,7 +244,7 @@ clo
 
 ```{r echo = FALSE, results = 'asis'}
 
-clo_table_25 %>%
+gamma_table %>%
   kable("html", digits=3) %>%
   kable_styling(font_size = 12)
 ```
@@ -188,47 +306,6 @@ grid.arrange(clo.fr.scatter,strand.b,ncol=2,nrow=1)
 
 \newpage
 
-```{r, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-
-clob = read.table(filepaths[2], header = TRUE,stringsAsFactors=TRUE, sep = ",")
-
-# Prep: ratio rank1 versus rank2 read counts
-btop.counts<-clob %>%
-  filter(Rank == 1 ) %>%
-  summarize(Total.Counts)
-
-bsecond.counts<-clob %>%
-  filter(Rank == 2 ) %>%
-  summarize(Total.Counts)
-
-bthird.counts<-clob %>%
-  filter(Rank == 3 ) %>%
-  summarize(Total.Counts)
-
-bfifth.counts<-clob %>%
-  filter(Rank == 5 ) %>%
-  summarize(Total.Counts)
-
-bavg.counts<-clob %>%
-  filter(Rank != 1 & Rank != 2 ) %>%
-  summarize(mean(Total.Counts))
-
-# add color to indicate top clone
-clob <- clob %>%
-  add_column(top = if_else(.$Rank == 1, TRUE, FALSE))
-
-#strand bias
-clob <- clob %>%
-  mutate(log2_strand = log(Plus.Counts/ Minus.Counts))
-
-
-## Generate clone summary table
-clob_table<-clob %>% select(Variable,Joining,CDR3.AA,CDR3.NT,Total.Counts,Frequency,Rank)
-
-## Generate clone summary table, top 25 clones
-clob_table_25<-clob_table %>% filter(Rank<26)
-```
 <br>
 
 ## TCR-Beta Results
@@ -239,23 +316,27 @@ clob_table_25<-clob_table %>% filter(Rank<26)
 
 - Total Number of Clones Detected = `r nrow(clob)`
 
-- Largest clone frequency = `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency)`
+- Largest clone frequency = `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
 
 - Background:
 
-    - rank2 clone frequency = `r clob %>% filter(Rank == 2 ) %>% summarize(Frequency)`
+    - rank2 clone frequency = `r clob %>% filter(Rank == 2 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
 
-    - rank3 clone frequency = `r clob %>% filter(Rank == 3 ) %>% summarize(Frequency)`
-
-    - average background frequency = `r clob %>% filter(Rank != 1 & Rank != 2 ) %>%  summarize(mean(Frequency))`
+    - rank3 clone frequency = `r clob %>% filter(Rank == 3 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
+    
+    - rank4 clone frequency = `r clob %>% filter(Rank == 4 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
+    
+    - rank5 clone frequency = `r clob %>% filter(Rank == 5 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
 
 - Ratio largest clone to:
 
-    - rank2 clone frequency = `r btop.counts/bsecond.counts`
+    - rank2 clone frequency = `r round(rank1B/rank2B, digits = 1)`x
     
-    - rank3 clone frequency = `r btop.counts/bthird.counts`
-
-    - average background frequency = `r btop.counts/bavg.counts`
+    - rank3 clone frequency = `r round(rank1B/rank3B, digits = 1)`x
+    
+    - rank4 clone frequency = `r round(rank1B/rank4B, digits = 1)`x
+    
+    - rank5 clone frequency = `r round(rank1B/rank5B, digits = 1)`x
 
 <br>
 
@@ -269,7 +350,7 @@ clob_table_25<-clob_table %>% filter(Rank<26)
 
 ```{r echo = FALSE, results = 'asis'}
 
-clob_table_25 %>%
+beta_table %>%
   kable("html", digits=3) %>%
   kable_styling(font_size = 12)
 ```
@@ -326,12 +407,4 @@ strand.b<-clob %>%
 grid.arrange(clob.fr.scatter,strand.b,ncol=2,nrow=1)
 ```
 
-\newpage
-
-## Kommentar
-
-Um eine Probe als monoklonal oder biklonal zu klassifizieren, müssen die dominanten Sequenzen mehr als 2.5% der gesamten Reads und mehr als 
-das 10x des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126). 
-
-Das dominante Rearrangement dieser Probe wurde mit `r clo %>% filter(Rank == 1 ) %>% summarize(Total.Counts)` (gamma) / `r clob %>% filter(Rank == 1 ) %>% summarize(Total.Counts)` (beta) Read Counts bei einer Gesamtanzahl von `r clo %>%  summarize(Total.Read.Count = sum(Total.Counts))` (gamma) / `r clob %>%  summarize(Total.Read.Count = sum(Total.Counts))` (beta) Read Counts nachgewiesen, was eine Frequenz von `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency)` für T-Zell-Rezeptor-gamma und `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency)` für T-Zell-Rezeptor-beta ergibt. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt `r top.counts/third.counts`x (gamma) und `r btop.counts/bthird.counts`x (beta), was im Vergleich zum empfohlenen Wert von 10x für die Bestimmung der Klonalität niedrig ist.
 
