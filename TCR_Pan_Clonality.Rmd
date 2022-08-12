@@ -10,7 +10,7 @@ output:
 params:
   filedir: ""
   output_file: ""
-  sample_Dir: ""
+  sample_ID: ""
 editor_options: 
   chunk_output_type: console
 ---
