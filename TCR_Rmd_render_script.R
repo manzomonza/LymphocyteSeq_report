@@ -17,8 +17,11 @@ opt = parse_args(opt_parser)
 
 filename <- gsub(".clone_summary.csv",'', opt$file)
 sampleID = filename
+sampleID = rev(unlist(stringr::str_split(sampleID, pattern = '/', simplify = FALSE)))[1]
 date_string = gsub("-",'',Sys.Date())
 filename <- paste0(filename, date_string, "_Pan_TCR_report.html")
+
+
 
 
 rmarkdown::render('TCR_Pan_Clonality.Rmd',
