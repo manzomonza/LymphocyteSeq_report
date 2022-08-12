@@ -39,10 +39,12 @@ filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv",
 ```
 
 ## Sample Info
-```{r, include=TRUE}
+```{r, include=FALSE}
 print(paste0("Sample ID: ", params$sample_ID))
 
 ```
+
+Sample ID: `r params$sample_ID`
 
 
 ```{r, include=FALSE}
