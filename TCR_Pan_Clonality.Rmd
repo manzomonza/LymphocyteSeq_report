@@ -9,7 +9,7 @@ output:
     highlight: zenburn
 params:
   filedir: ""
-  filename: ""
+  output_file: ""
   sample_Dir: ""
 editor_options: 
   chunk_output_type: console
