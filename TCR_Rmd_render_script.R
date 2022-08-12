@@ -20,7 +20,7 @@ sampleID = filename
 filename <- paste0(filename, "_Pan_TCR_report.html")
 
 
-rmarkdown::render('/home/ionadmin/ngs_variant_annotation/variantAnnotation/scripts/TCR_Pan_Clonality.Rmd',
+rmarkdown::render('TCR_Pan_Clonality.Rmd',
 params = list(filedir =  opt$dir,
 output_file = filename,
 sample_ID = sampleID) )
