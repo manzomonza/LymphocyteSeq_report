@@ -9,6 +9,7 @@ output:
     highlight: zenburn
 params:
   filedir: ""
+  filename: ""
 editor_options: 
   chunk_output_type: console
 ---
@@ -34,8 +35,12 @@ library(janitor)
 filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv",
                         full.names = TRUE,
                         recursive = FALSE)
+```
 
-print(filepaths)
+## Sample Info
+```{r, include=TRUE}
+print(paste0("Sample ID: ", params$sample_ID))
+
 ```
 
 
@@ -161,17 +166,6 @@ rank5B = beta_clone_counts[which(names(beta_clone_counts) == 5)]
 
 
 ```
-
-<br>
-
-## Diagnose
-Resultat der Parallelsequenzierung mit dem Oncomine TCR Pan-Clonality Assay (DNA):
-
-Anzahl der nachgewiesenen Rearrangements: `r nrow(clo)` T-Zell-Rezeptor-gamma/ `r nrow(clob)` T-Zell-Rezeptor-beta
-
-T-Zell-Rezeptor-gamma: kein Nachweis einer T-Zellklonalität/ dominantes Rearrangement mit `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% Frequenz vor polyklonalem Hintergrund
-
-T-Zell-Rezeptor-beta: kein Nachweis einer T-Zellklonalität/ dominantes Rearrangement mit `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% Frequenz vor polyklonalem Hintergrund
 
 <br>
 
