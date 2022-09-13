@@ -403,5 +403,11 @@ strand.b<-clob %>%
 ### FIGURE 2 - plot
 grid.arrange(clob.fr.scatter,strand.b,ncol=2,nrow=1)
 ```
+<br>
 
+\newpage
 
+## Diagnose
+Resultat der Parallelsequenzierung mit dem Oncomine TCR Pan-Clonality Assay (DNA):
+  
+Anzahl der nachgewiesenen Rearrangements: `r nrow(clo)` T-Zell-Rezeptor-gamma/ `r nrow(clob)` T-Zell-Rezeptor-beta
