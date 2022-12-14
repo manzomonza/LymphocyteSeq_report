@@ -1,0 +1,48 @@
+---
+title: Pan TCR analysis
+author: University Hospital Basel -- Molecular Diagnostic Unit
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    highlight: zenburn
+params:
+  filedir: ""
+  output_file: ""
+  sample_ID: ""
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Load libs and data
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(gridExtra)
+library(data.table)
+library(tidyverse)
+library(janitor)
+```
+
+
+```{r, include=TRUE}
+## List clone summary filepaths in working directory
+## params$filedir specifies directory as given by Watchdog
+
+filepaths <- params$files
+print(filepaths)
+print(params$sample_ID)
+print(params$output_file)
+```
+
+## Sample Info
+```{r, include=FALSE}
+print(paste0("Sample ID: ", params$sample_ID))
+
+```
+
+Sample ID: `r params$sample_ID`

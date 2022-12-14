@@ -18,7 +18,7 @@ opt = parse_args(opt_parser)
 ## List clone summaries
 clonesummaries = only_clonesummaries(opt$dir)
 
-panel_df = panel_dataframe(testfiles)
+panel_df = panel_dataframe(clonesummaries)
 panel_df = lapply(panel_df, check_panel_dataframe)
 
 for(e in panel_df){
@@ -36,6 +36,6 @@ for(e in panel_df){
                       params = list(files = e$filepath,
                                     panel = e$panel,
                                     sample_ID = filename_extract(e$filepath[1], e$filepath[2]),
-                                    output_file = paste0(sample_ID, '.html'))) 
+                                    output_file = paste0(opt$dir,"/", sample_ID, '.html'))) 
   }
 }
