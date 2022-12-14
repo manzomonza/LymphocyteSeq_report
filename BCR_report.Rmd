@@ -11,6 +11,7 @@ params:
   files: ""
   output_file: ""
   sample_ID: ""
+  panel:""
 editor_options: 
   chunk_output_type: console
 ---
