@@ -5,6 +5,7 @@
 ### OPTPARSE ###
 ################
 library(optparse)
+library(LymphocyteSeq)
 
 bcr_rmarkdown = '/home/ionadmin/watchdog/LymphocyteSeq_report/BCR_report.Rmd'
 tcr_rmarkdown = '/home/ionadmin/watchdog/LymphocyteSeq_report/TCR_report.Rmd'
