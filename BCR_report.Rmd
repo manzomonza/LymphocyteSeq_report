@@ -8,7 +8,7 @@ output:
     toc_float: true
     highlight: zenburn
 params:
-  filedir: ""
+  files: ""
   output_file: ""
   sample_ID: ""
 editor_options: 
