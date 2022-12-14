@@ -18,6 +18,7 @@ opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser)
 ## List clone summaries
 clonesummaries = only_clonesummaries(opt$dir)
+print(clonesummaries)
 
 panel_df = panel_dataframe(clonesummaries)
 panel_df = lapply(panel_df, check_panel_dataframe)
