@@ -15,18 +15,27 @@ option_list = list(
 
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser)
+## List clone summaries
+clonesummaries = only_clonesummaries(opt$dir)
 
-## 
-panel_df = panel_dataframe(opt$dir)
-if(panel_decision(panel_df) == 'BCR'){
-  panel_specific_rmarkdown == bcr_rmarkdown
-}else if(panel_decision(panel_df) == 'TCR'){
-  panel_specific_rmarkdown == tcr_rmarkdown
-  
-  
+panel_df = panel_dataframe(testfiles)
+panel_df = lapply(panel_df, check_panel_dataframe)
+
+for(e in panel_df){
+  if(!is.null(e)){
+    if(panel_decision(e) == 'BCR'){
+      panel_specific_rmarkdown = bcr_rmarkdown
+      print(panel_specific_rmarkdown)
+    }else if(panel_decision(e) == 'TCR'){
+      panel_specific_rmarkdown = tcr_rmarkdown
+      print(panel_specific_rmarkdown)
+    }else{
+      return("unsupported panel")
+    }
+    rmarkdown::render(panel_specific_rmarkdown,
+                      params = list(files = e$filepath,
+                                    panel = e$panel,
+                                    sample_ID = filename_extract(e$filepath[1], e$filepath[2]),
+                                    output_file = paste0(sample_ID, '.html'))) 
+  }
 }
-rmarkdown::render(panel_specific_rmarkdown,
-params = list(filedir =  opt$dir,
-output_file = filename,
-sample_ID = sampleID),
-output_file = filename)
