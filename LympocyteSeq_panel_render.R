@@ -34,14 +34,13 @@ for(e in panel_df){
     }
     e$filepath = as.character(e$filepath)
     ## Print both files
-    print("Both files:")
-    print(e$filepath[1])
-    print(e$filepath[2])
+    sample_ID = filename_extract(e$filepath[1], e$filepath[2])
+    html_filename = paste0(opt$dir,"/", sample_ID, '.html')
     print(panel_specific_rmarkdown)
     rmarkdown::render(panel_specific_rmarkdown,
                       params = list(files = e$filepath,
                                     panel = unique(e$panel),
-                                    sample_ID = filename_extract(e$filepath[1], e$filepath[2]),
-                                    output_file = paste0(opt$dir,"/", sample_ID, '.html'))) 
+                                    sample_ID = sample_ID),
+                                    output_file = html_filename)
   }
 }
