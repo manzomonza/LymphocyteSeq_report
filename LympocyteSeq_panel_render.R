@@ -18,7 +18,6 @@ opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser)
 ## List clone summaries
 clonesummaries = only_clonesummaries(opt$dir)
-print(clonesummaries)
 
 panel_df = panel_dataframe(clonesummaries)
 panel_df = lapply(panel_df, check_panel_dataframe)
@@ -33,12 +32,15 @@ for(e in panel_df){
     }else{
       return("unsupported panel")
     }
+    e$filepath = as.character(e$filepath)
+    ## Print both files
+    print("Both files:")
     print(e$filepath[1])
     print(e$filepath[2])
     print(panel_specific_rmarkdown)
     rmarkdown::render(panel_specific_rmarkdown,
                       params = list(files = e$filepath,
-                                    panel = e$panel,
+                                    panel = unique(e$panel),
                                     sample_ID = filename_extract(e$filepath[1], e$filepath[2]),
                                     output_file = paste0(opt$dir,"/", sample_ID, '.html'))) 
   }
