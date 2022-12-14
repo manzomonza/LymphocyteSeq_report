@@ -27,13 +27,15 @@ for(e in panel_df){
   if(!is.null(e)){
     if(panel_decision(e) == 'BCR'){
       panel_specific_rmarkdown = bcr_rmarkdown
-      print(panel_specific_rmarkdown)
+
     }else if(panel_decision(e) == 'TCR'){
       panel_specific_rmarkdown = tcr_rmarkdown
-      print(panel_specific_rmarkdown)
     }else{
       return("unsupported panel")
     }
+    print(e$filepath[1])
+    print(e$filepath[2])
+    print(panel_specific_rmarkdown)
     rmarkdown::render(panel_specific_rmarkdown,
                       params = list(files = e$filepath,
                                     panel = e$panel,
