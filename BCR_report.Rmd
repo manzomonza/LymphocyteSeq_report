@@ -1,5 +1,5 @@
 ---
-title: Pan TCR analysis
+title: Pan BCR analysis
 author: University Hospital Basel -- Molecular Diagnostic Unit
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -11,7 +11,7 @@ params:
   files: ""
   output_file: ""
   sample_ID: ""
-  panel:""
+  panel: ""
 editor_options: 
   chunk_output_type: console
 ---
