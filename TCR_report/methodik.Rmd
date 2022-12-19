@@ -1,0 +1,7 @@
+DNA wurde vom eingesandten Material extrahiert. Amplifikation der Zielsequenzen und Parallelsequenzierung (Next-Generation Sequencing) der genomischen B Cell Receptor (BCR) Immunoglobulin Heavy (IGH), K und L Regionen auf der Ion Torrent S5 Plattform unter Verwendung des  Oncomine BCR IGH LR Assay. ???
+###$$$
+Der Assay ermöglicht die Bestimmung der Sequenzen der complementarity-determining Region 3 (CDR3) der TCR-Gamma und Beta-Kette. Der Oncomine TCR Pan-Clonality Assay verwendet Multiplex-Ion-Ampliseq-Primers, die auf die FR3-Region des variablen Gens (V-Gen) und die joining Gensegmente (J-Gen) der TCR Gamma und Beta-Rearrangements abzielen und ein ~75-100 bp-Amplikon produzieren. Datenanalyse mittels Torrent Suite und Ion Reporter Software.
+ 
+Das molekularpathologische Labor nimmt im Rahmen der Qualitätssicherung regelmässig an Ringversuchen von EMQN und QuiP mit Erfolg teil. 
+
+Für weitere Informationen siehe: www.unispital-basel.ch/molpathologie

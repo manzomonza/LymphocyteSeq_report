@@ -39,9 +39,10 @@ for(e in panel_df){
       return("unsupported panel")
     }
     e$filepath = as.character(e$filepath)
+    panel_info = unique(e$panel)
     ## Print both files
     sample_ID = filename_extract(e$filepath[1], e$filepath[2])
-    html_filename = paste0(opt$dir,"/", sample_ID, '.html')
+    html_filename = paste0(opt$dir,"/", sample_ID, '_', panel_info, '.html')
     print(panel_specific_rmarkdown)
     rmarkdown::render(panel_specific_rmarkdown,
                       params = list(panel_df = e,

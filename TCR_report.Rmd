@@ -1,5 +1,5 @@
 ---
-title: Pan TCR analysis
+title: Pan BCR analysis
 author: University Hospital Basel -- Molecular Diagnostic Unit
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -26,342 +26,32 @@ library(gridExtra)
 library(data.table)
 library(tidyverse)
 library(janitor)
+library(LymphocyteSeq)
 ```
 
 Sample ID: `r params$sample_ID`
 
-
+## Eingabe Dateien
 ```{r}
-# Frequency vs CD3 NT length
-
-length_vs_frequency <- function(clonesummary){
-  
-  TCR_gamma_true = c(all(grepl("TRGV",clonesummary$Variable)), all(grepl("TRGJ", clonesummary$Joining)) )
-  
-  if(all(TCR_gamma_true)){
-    sequencing = "gamma"
-  }else{
-    sequencing = "beta"
-  }
-  
-  clonesummary$CDR3.NT <- as.character(clonesummary$CDR3.NT)
-  clonesummary$cdr3_nt_length = nchar(clonesummary$CDR3.NT)
-  pois_tb <- tibble(cdr3_nt_length = rpois(nrow(clonesummary), lambda =
-                                             mean(clonesummary$cdr3_nt_length))) %>%
-    janitor::tabyl(cdr3_nt_length) %>%
-    dplyr::rename(Frequency = percent) %>%
-    dplyr::mutate(data = "Poisson")
-  
-  pp <- clonesummary %>% 
-    dplyr::mutate(data = "TCR sequencing") %>% 
-    dplyr::select(Frequency,cdr3_nt_length, data ) %>%
-    dplyr::bind_rows(., pois_tb) %>%
-    ggplot(aes(cdr3_nt_length, Frequency, fill = data)) +
-    geom_col(position = "dodge") +
-    labs(title = paste0("Frequencies of CDR3 Lengths of TCR ", sequencing, " clones"),
-         subtitle = "Poisson distribution CDR3 nucleotide lengths is also displayed",
-         x = "CDR3 nucleotide length")
-  return(pp)
-}
-
+DT::datatable(params$panel_df)
 ```
-
-
-
-```{r}
-clo = read.table(filepaths[1], header = TRUE,stringsAsFactors=TRUE, sep = ",")
-clob = read.table(filepaths[2], header = TRUE,stringsAsFactors=TRUE, sep = ",")
-# Prep: ratio rank1 versus rank2 read count
-
-# Prep: ratio rank1 versus rank2 read counts
-clone_counts <- function(clone_summary){
-  total_counts = clone_summary %>% 
-    dplyr::filter(Rank %in% 1:5) %>% 
-    dplyr::group_by(Rank) %>% 
-    dplyr::summarise(sum_total_counts = sum(Total.Counts))
-  
-  rank_counts = total_counts$sum_total_counts
-  names(rank_counts) = 1:5
-  return(rank_counts)
-}
-
-##### TESTING
-
-# Add annotation to clone summary file
-annotate<- function(clone_summary){
-  clone_summary %>%
-    add_column(top = if_else(.$Rank == 1, TRUE, FALSE)) %>%
-  mutate(log2_strand = log2(Plus.Counts/ Minus.Counts))} 
-
-# Generate clone summary table
-clo_table<-function(clone_summary,ntop){
-  clone_summary %>% 
-    select(Variable,Joining,CDR3.AA,CDR3.NT,Total.Counts,Frequency,Rank) %>% 
-    filter(Rank<ntop)}
-
-# Use the functions
-
-gamma_clone_counts <- clone_counts(clo)
-beta_clone_counts <- clone_counts(clob)
-
-clo <- annotate(clo)
-clob <- annotate(clob)
-
-gamma_table <- clo_table(clo, ntop = 26)
-beta_table <- clo_table(clob, ntop = 26)
-
-# to make it shorter below
-rank1G = gamma_clone_counts[which(names(gamma_clone_counts) == 1)]
-rank2G = gamma_clone_counts[which(names(gamma_clone_counts) == 2)]
-rank3G = gamma_clone_counts[which(names(gamma_clone_counts) == 3)]
-rank4G = gamma_clone_counts[which(names(gamma_clone_counts) == 4)]
-rank5G = gamma_clone_counts[which(names(gamma_clone_counts) == 5)]
-
-rank1B = beta_clone_counts[which(names(beta_clone_counts) == 1)]
-rank2B = beta_clone_counts[which(names(beta_clone_counts) == 2)]
-rank3B = beta_clone_counts[which(names(beta_clone_counts) == 3)]
-rank4B = beta_clone_counts[which(names(beta_clone_counts) == 4)]
-rank5B = beta_clone_counts[which(names(beta_clone_counts) == 5)]
-
-
-```
-
-<br>
 
 ## Kommentar
-
-Das häufigste Rearrangement dieser Probe wurde mit einer Frequenz von `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% für T-Zell-Rezeptor-gamma und `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`% für T-Zell-Rezeptor-beta nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt `r round(rank1G/rank5G,digits=1)`x (gamma) und `r round(rank1B/rank5B,digits=1)`x (beta). 
-
-Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
-
-<br>
-
+```{r child='TCR_report/kommentar.Rmd'}
+```
 ## Methodik
-Sequenz der haeufigsten Rearrangements am T-Zell-Rezeptor-gamma-Locus:
-
-`r clo %>% filter(Rank == 1 ) %>% summarize(Variable, Joining, CDR3.AA, CDR3.NT)`
-
-Sequenz der haeufigsten Rearrangements am T-Zell-Rezeptor-beta-Locus:
-
-`r clob %>% filter(Rank == 1 ) %>% summarize(Variable, Joining, CDR3.AA, CDR3.NT)`
-
-DNA wurde vom eingesandten Material extrahiert. Amplifikation der Zielsequenzen und Parallelsequenzierung (Next-Generation Sequencing) den genomischen T-Zell-Rezeptors (TCR) Gamma und Beta-Regionen auf der Ion Torrent S5 Plattform unter Verwendung des Ion Torrent TCR Pan-Clonality Assays. Der Assay ermöglicht die Bestimmung der Sequenzen der complementarity-determining Region 3 (CDR3) der TCR-Gamma und Beta-Kette. Der Oncomine TCR Pan-Clonality Assay verwendet Multiplex-Ion-Ampliseq-Primers, die auf die FR3-Region des variablen Gens (V-Gen) und die joining Gensegmente (J-Gen) der TCR Gamma und Beta-Rearrangements abzielen und ein ~75-100 bp-Amplikon produzieren. Datenanalyse mittels Torrent Suite und Ion Reporter Software.
- 
-Das molekularpathologische Labor nimmt im Rahmen der Qualitätssicherung regelmässig an Ringversuchen von EMQN und QuiP mit Erfolg teil. 
-
-Für weitere Informationen siehe: www.unispital-basel.ch/molpathologie
-
-\newpage
-
-## TCR-Gamma Results
-
-<br>
-
-- Total Read Count = `r clo %>%  summarize(Total.Read.Count = sum(Total.Counts))`
-
-- Total Number of Clones Detected = `r nrow(clo)`
-
-- Largest clone frequency = `r clo %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-
-- Background:
-
-    - rank2 clone frequency = `r clo %>% filter(Rank == 2 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-
-    - rank3 clone frequency = `r clo %>% filter(Rank == 3 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-    
-    - rank4 clone frequency = `r clo %>% filter(Rank == 4 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-
-    - rank5 clone frequency = `r clo %>% filter(Rank == 5 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-
-- Ratio largest clone to:
-
-    - rank2 clone frequency = `r round(rank1G/rank2G, digits = 1)`x
-    
-    - rank3 clone frequency = `r round(rank1G/rank3G, digits = 1)`x
-    
-    - rank4 clone frequency = `r round(rank1G/rank4G, digits = 1)`x
-    
-    - rank5 clone frequency = `r round(rank1G/rank5G, digits = 1)`x
-
-
-<br>
-
-*Note: Rank2 clone frequency represents the highest background clone frequency in monoclonal samples, Rank3 clone frequency represents the highest background clone frequency in biclonal samples.*
-*The average background frequency was calculated by excluding rank1 and rank2 clones.*
-
-\newpage
-
-#### Top 25 Clones Summary Table
-
-```{r echo = FALSE, results = 'asis'}
-
-gamma_table %>%
-  kable("html", digits=3) %>%
-  kable_styling(font_size = 12)
+```{r child='TCR_report/methodik.Rmd'}
 ```
-<br>
-
-\newpage
-
-```{r, echo=FALSE, fig.cap="**Figure 1.** (Left panel) Total read counts per clone. (Right panel) Clone frequency indicated as ratio of read counts per clone on total read counts of the library. Red and blue dotted line are set at 10% and 1% of clone frequency. Largest clone is colored in blue. Productive reads are defined as having an in-frame CDR3 sequence and no stop codon"}
-
-# dot plot with read counts of productive and unproductive reads
-
-r.counts<-ggplot(clo, aes(x=Functionality, y=Total.Counts, color=top)) + 
-  geom_jitter(width=0.25, alpha=0.7, size=2.5)  +
-  ggtitle("Total Read Counts") + theme(plot.title = element_text(size=12, face="bold"),
-                                       axis.title.x = element_blank(),
-                                       axis.title.y = element_text(),
-                                       legend.position = "none")
-
-
-# dot plot with clone frequency productive and unproductive reads
-clo.fr <- ggplot(clo, aes(x=Functionality, y=Frequency, color = top)) +
-  geom_jitter(width=0.25, alpha=0.7, size=2.5) + ylim (0,0.50) + 
-  geom_hline(yintercept=0.1, linetype="dashed", color = "red", size=1) + 
-  geom_hline(yintercept=0.01, linetype="dashed", color = "blue",size=1) +
-  ggtitle("Clone Frequency") + theme(plot.title = element_text(size=12, face="bold"),
-    axis.title.x = element_blank(),
-    axis.title.y = element_text(),
-    legend.position = "none")
-
-### FIGURE 1 - plot
-grid.arrange(r.counts,clo.fr,ncol=2,nrow=1)
-
+## IGH
+```{r child='TCR_report/tcrg.Rmd'}
 ```
-<br>
-
-
-
-```{r, echo=FALSE, fig.cap = "**Figure 2**. (Left panel) Clone frequency versus rank. Blue dotted line is set at 1% of clone frequency. (Right panel) Strand bias of reads is shown as log2(strand_bias) versus rank. Largest clone is colored in blue."}
-
-# scatter plot of frequency versus rank
-clo.fr.scatter<-ggplot(clo, aes(x=Rank, y=Frequency, color = top)) + geom_point() + scale_x_log10() + 
-  geom_hline(yintercept=0.01, linetype="dashed", size=1, color = "blue") +
-  ggtitle("Clone Frequency versus Rank") + theme(plot.title = element_text(size=12, face="bold"),
-                                                 legend.position = "none")
-# check if top clone has strong bias
-
-strand.b<-clo %>% 
-  ggplot(aes(Rank, log2_strand)) +
-  geom_point(aes(col = top)) + 
-  scale_x_log10() +
-  ggtitle("Strand bias")+ theme(plot.title = element_text(size=12, face="bold"),
-                                legend.position = "none")
-
-
-### FIGURE 2 - plot
-grid.arrange(clo.fr.scatter,strand.b,ncol=2,nrow=1)
+## IGK und IGL
+```{r child='TCR_report/tcrb.Rmd'}
 ```
-<br>
-
-\newpage
-
-<br>
-
-## TCR-Beta Results
-
-<br>
-
-- Total Read Count = `r clob %>%  summarize(Total.Read.Count = sum(Total.Counts))`
-
-- Total Number of Clones Detected = `r nrow(clob)`
-
-- Largest clone frequency = `r clob %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-
-- Background:
-
-    - rank2 clone frequency = `r clob %>% filter(Rank == 2 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-
-    - rank3 clone frequency = `r clob %>% filter(Rank == 3 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-    
-    - rank4 clone frequency = `r clob %>% filter(Rank == 4 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-    
-    - rank5 clone frequency = `r clob %>% filter(Rank == 5 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))`%
-
-- Ratio largest clone to:
-
-    - rank2 clone frequency = `r round(rank1B/rank2B, digits = 1)`x
-    
-    - rank3 clone frequency = `r round(rank1B/rank3B, digits = 1)`x
-    
-    - rank4 clone frequency = `r round(rank1B/rank4B, digits = 1)`x
-    
-    - rank5 clone frequency = `r round(rank1B/rank5B, digits = 1)`x
-
-<br>
-
-*Note: Rank2 clone frequency represents the highest background clone frequency in monoclonal samples, Rank3 clone frequency represents the highest background clone frequency in biclonal samples.*
-*The average background frequency was calculated by excluding rank1 and rank2 clones.*
 
 
-\newpage
-
-#### Top 25 Clones Summary Table
-
-```{r echo = FALSE, results = 'asis'}
-
-beta_table %>%
-  kable("html", digits=3) %>%
-  kable_styling(font_size = 12)
+## R- und Paketversionen
+```{r}
+devtools::session_info()
 ```
-<br>
 
-\newpage
-
-```{r, echo=FALSE, fig.cap="**Figure 1.** (Left panel) Total read counts per clone. (Right panel) Clone frequency indicated as ratio of read counts per clone on total read counts of the library. Red and blue dotted line are set at 10% and 1% of clone frequency. Largest clone is colored in blue. Productive reads are defined as having an in-frame CDR3 sequence and no stop codon"}
-
-# dot plot with read counts of productive and unproductive reads
-
-r.counts<-ggplot(clob, aes(x=Functionality, y=Total.Counts, color=top)) + 
-  geom_jitter(width=0.25, alpha=0.7, size=2.5)  +
-  ggtitle("Total Read Counts") + theme(plot.title = element_text(size=12, face="bold"),
-                                       axis.title.x = element_blank(),
-                                       axis.title.y = element_text(),
-                                       legend.position = "none")
-
-
-# dot plot with clone frequency productive and unproductive reads
-clob.fr <- ggplot(clob, aes(x=Functionality, y=Frequency, color = top)) +
-  geom_jitter(width=0.25, alpha=0.7, size=2.5) + ylim (0,0.50) + 
-  geom_hline(yintercept=0.1, linetype="dashed", color = "red", size=1) + 
-  geom_hline(yintercept=0.01, linetype="dashed", color = "blue",size=1) +
-  ggtitle("Clone Frequency") + theme(plot.title = element_text(size=12, face="bold"),
-    axis.title.x = element_blank(),
-    axis.title.y = element_text(),
-    legend.position = "none")
-
-### FIGURE 1 - plot
-grid.arrange(r.counts,clob.fr,ncol=2,nrow=1)
-
-```
-<br>
-
-```{r, echo=FALSE, fig.cap = "**Figure 2**. (Left panel) Clone frequency versus rank. Blue dotted line is set at 1% of clone frequency. (Right panel) Strand bias of reads is shown as log2(strand_bias) versus rank. Largest clone is colored in blue."}
-
-# scatter plot of frequency versus rank
-clob.fr.scatter <- ggplot(clob, aes(x=Rank, y=Frequency, color = top)) + geom_point() + scale_x_log10() + 
-  geom_hline(yintercept=0.01, linetype="dashed", size=1, color = "blue") +
-  ggtitle("Clone Frequency versus Rank") + theme(plot.title = element_text(size=12, face="bold"),
-                                                 legend.position = "none")
-# check if top clone has strong bias
-
-strand.b<-clob %>% 
-  ggplot(aes(Rank, log2_strand)) +
-  geom_point(aes(col = top)) + 
-  scale_x_log10() +
-  ggtitle("Strand bias")+ theme(plot.title = element_text(size=12, face="bold"),
-                                legend.position = "none")
-
-
-### FIGURE 2 - plot
-grid.arrange(clob.fr.scatter,strand.b,ncol=2,nrow=1)
-```
-<br>
-
-\newpage
-
-## Diagnose
-Resultat der Parallelsequenzierung mit dem Oncomine TCR Pan-Clonality Assay (DNA):
-  
-Anzahl der nachgewiesenen Rearrangements: `r nrow(clo)` T-Zell-Rezeptor-gamma/ `r nrow(clob)` T-Zell-Rezeptor-beta

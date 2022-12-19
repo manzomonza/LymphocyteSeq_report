@@ -29,24 +29,28 @@ library(janitor)
 library(LymphocyteSeq)
 ```
 
-
-```{r, include=TRUE}
-## List clone summary filepaths in working directory
-## params$filedir specifies directory as given by Watchdog
-panel_df <- params$panel_df
-print(params$sample_ID)
-print(params$output_file)
-```
-
-## Sample Info
-```{r, include=FALSE}
-print(paste0("Sample ID: ", params$sample_ID))
-
-```
-
 Sample ID: `r params$sample_ID`
 
-## 
+## Eingabe Dateien
+```{r}
+DT::datatable(params$panel_df)
+```
+
+## Kommentar
+```{r child='BCR_report/kommentar.Rmd'}
+```
+## Methodik
+```{r child='BCR_report/methodik.Rmd'}
+```
+## IGH
+```{r child='BCR_report/igh.Rmd'}
+```
+## IGK und IGL
+```{r child='BCR_report/igkl.Rmd'}
+```
+
+
+## R- und Paketversionen
 ```{r}
 devtools::session_info()
 ```

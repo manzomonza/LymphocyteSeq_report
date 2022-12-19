@@ -1,0 +1,8 @@
+Das häufigste Rearrangement dieser Probe wurde mit einer Frequenz von 
+# r clo %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))
+% für T-Zell-Rezeptor-gamma und r clob %>% filter(Rank == 1 ) %>% summarize(Frequency*100) %>% mutate(round(., 1))% für T-Zell-Rezeptor-beta nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt r round(rank1G/rank5G,digits=1)x (gamma) und r round(rank1B/rank5B,digits=1)x (beta). 
+
+Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
+
+<br>
+
