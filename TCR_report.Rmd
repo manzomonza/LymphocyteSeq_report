@@ -8,10 +8,9 @@ output:
     toc_float: true
     highlight: zenburn
 params:
-  files: ""
+  panel_df: ""
   output_file: ""
   sample_ID: ""
-  panel: ""
 editor_options: 
   chunk_output_type: console
 ---
@@ -29,53 +28,8 @@ library(tidyverse)
 library(janitor)
 ```
 
-
-```{r, include=FALSE}
-## List clone summary filepaths in working directory
-## params$filedir specifies directory as given by Watchdog
-
-filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv",
-                        full.names = TRUE,
-                        recursive = FALSE)
-```
-
-## Sample Info
-```{r, include=FALSE}
-print(paste0("Sample ID: ", params$sample_ID))
-
-```
-
 Sample ID: `r params$sample_ID`
 
-
-```{r, include=FALSE}
-filepaths <- list.files(path = params$filedir, pattern = ".*.clone_summary.csv",
-                        full.names = TRUE,
-                        recursive = FALSE)
-
-checkTCRclonesummary <- function(clonesummary_filepath){
-  file1 = data.table::fread(clonesummary_filepath)
-  ## Line checks if all rows in checked clone summary file (file1) contain "TRG" information, i.e. TCR_gamma
-  TCR_gamma_true = c(all(grepl("TRGV",file1$Variable)), all(grepl("TRGJ",file1$Joining)) )
-  # if all entries are TRUE, return  1, else 2
-  index = ifelse(all(TCR_gamma_true == TRUE), 1,2)
-  return(index)
-}
-
-## Check the results for the filepaths
-indeces <- unname(sapply(filepaths, checkTCRclonesummary))
-
-## If the indeces do not correspond, the assumption is:
-## there's one gamma and one beta TCR clone summary filepresent
-if(indeces[1] != indeces[2]){
-  ## This orders the 'filepaths' by indeces, 
-  ## i.e. TCR gamme filepath first (hence the 1), TCR beta second (auto 2 in checkTCRclonesummary)
-  filepaths <- filepaths[unname(sapply(filepaths, checkTCRclonesummary))]
-}else{
-  "ERROR: Both input files address same TCR chain"
-}
-
-```
 
 ```{r}
 # Frequency vs CD3 NT length
@@ -134,7 +88,8 @@ clone_counts <- function(clone_summary){
 ##### TESTING
 
 # Add annotation to clone summary file
-annotate<- function(clone_summary){clone_summary %>%
+annotate<- function(clone_summary){
+  clone_summary %>%
     add_column(top = if_else(.$Rank == 1, TRUE, FALSE)) %>%
   mutate(log2_strand = log2(Plus.Counts/ Minus.Counts))} 
 

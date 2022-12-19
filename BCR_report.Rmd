@@ -8,10 +8,9 @@ output:
     toc_float: true
     highlight: zenburn
 params:
-  files: ""
+  panel_df: ""
   output_file: ""
   sample_ID: ""
-  panel: ""
 editor_options: 
   chunk_output_type: console
 ---
@@ -34,9 +33,7 @@ library(LymphocyteSeq)
 ```{r, include=TRUE}
 ## List clone summary filepaths in working directory
 ## params$filedir specifies directory as given by Watchdog
-
-filepaths <- params$files
-print(filepaths)
+panel_df <- params$panel_df
 print(params$sample_ID)
 print(params$output_file)
 ```
@@ -48,3 +45,9 @@ print(paste0("Sample ID: ", params$sample_ID))
 ```
 
 Sample ID: `r params$sample_ID`
+
+## 
+```{r}
+devtools::session_info()
+```
+

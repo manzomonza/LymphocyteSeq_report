@@ -10,6 +10,10 @@ library(LymphocyteSeq)
 bcr_rmarkdown = '/home/ionadmin/watchdog/LymphocyteSeq_report/BCR_report.Rmd'
 tcr_rmarkdown = '/home/ionadmin/watchdog/LymphocyteSeq_report/TCR_report.Rmd'
 
+bcr_rmarkdown = '/Users/manzo/USB/USB_Diagnostics/LymphocyteSeq_report/BCR_report.Rmd'
+tcr_rmarkdown = '/Users/manzo/USB/USB_Diagnostics/LymphocyteSeq_report/TCR_report.Rmd'
+
+
 option_list = list(
   make_option(c("-d", "--dir"), type="character", default=NULL,
               help="directory containing clone summaries", metavar="character"))
@@ -22,6 +26,8 @@ clonesummaries = only_clonesummaries(opt$dir)
 panel_df = panel_dataframe(clonesummaries)
 panel_df = lapply(panel_df, check_panel_dataframe)
 
+
+## Decide on panel and generate sampleID
 for(e in panel_df){
   if(!is.null(e)){
     if(panel_decision(e) == 'BCR'){
@@ -38,8 +44,7 @@ for(e in panel_df){
     html_filename = paste0(opt$dir,"/", sample_ID, '.html')
     print(panel_specific_rmarkdown)
     rmarkdown::render(panel_specific_rmarkdown,
-                      params = list(files = e$filepath,
-                                    panel = unique(e$panel),
+                      params = list(panel_df = e,
                                     sample_ID = sample_ID),
                                     output_file = html_filename)
   }
