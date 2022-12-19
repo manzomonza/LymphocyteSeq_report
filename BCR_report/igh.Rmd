@@ -2,8 +2,8 @@
 ### Top clone
 
 ```{r, include=FALSE}
-params$panel_df
-clonsum = clonesum_read('/Users/manzo/USB/USB_Diagnostics/LymphocyteSeq/input/BCR/W3525_BCR/W3525_B2022.50915_v1_20221204101340383.clone_summary.csv')
+file1 = params$panel_df[1]
+clonsum = clonesum_read(file1)
 topfreq = LymphocyteSeq::topClone(clonsum)
 ```
 
