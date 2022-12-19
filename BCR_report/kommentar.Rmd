@@ -1,2 +1,3 @@
-Das häufigste Rearrangement wurde mit einer Frequenz von $$% für Immunglobulin-Schwerkette (IGH) und $$% für Immunglobulin-Leichtkette (IGK und IGL) nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt $$x (IGH) resp. $$x (IGK und IGL).Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
-$$$Diese Werte werden hier klar erfüllt. $$$
+## Kommentar
+Das häufigste Rearrangement wurde mit einer Frequenz von % für Immunglobulin-Schwerkette (IGH) und % für Immunglobulin-Leichtkette (IGK und IGL) nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt x (IGH) resp. x (IGK und IGL).Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
+Diese Werte werden hier klar erfüllt. 

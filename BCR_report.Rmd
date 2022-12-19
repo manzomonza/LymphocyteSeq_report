@@ -19,7 +19,8 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE)
 
 # Load libs and data
-library(knitr)
+suppressPackageStartupMessages({
+  library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(gridExtra)
@@ -27,6 +28,7 @@ library(data.table)
 library(tidyverse)
 library(janitor)
 library(LymphocyteSeq)
+})
 ```
 
 Sample ID: `r params$sample_ID`
@@ -36,22 +38,29 @@ Sample ID: `r params$sample_ID`
 DT::datatable(params$panel_df)
 ```
 
-## Kommentar
-```{r child='BCR_report/kommentar.Rmd'}
+
+```{r child='BCR_report/diagnose.Rmd', include=TRUE}
 ```
-## Methodik
-```{r child='BCR_report/methodik.Rmd'}
+
+
+```{r child='BCR_report/kommentar.Rmd', include=TRUE}
 ```
-## IGH
-```{r child='BCR_report/igh.Rmd'}
+
+
+```{r child='BCR_report/methodik.Rmd', include=TRUE}
 ```
-## IGK und IGL
-```{r child='BCR_report/igkl.Rmd'}
+
+
+```{r child='BCR_report/igh.Rmd', include=TRUE}
+```
+
+
+```{r child='BCR_report/igk_l.Rmd', include=TRUE}
 ```
 
 
 ## R- und Paketversionen
-```{r}
+```{r, include=TRUE}
 devtools::session_info()
 ```
 

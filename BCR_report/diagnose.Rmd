@@ -1,4 +1,5 @@
+## Diagnose
 Resultat der Parallelsequenzierung mit dem Oncomine BCR Pan-Clonality Assay (DNA):
-Anzahl der nachgewiesenen Rearrangements: $$$ Immunoglobulin-Schwerekette (IGH)/ $$$ Immunglobulin-Leichtkette (IGK und IGL)
-Immunglobulin-Schwerekette (IGH): dominantes Rearrangement mit $$$ Frequenz vor polyklonalem Hintergrund/ kein Nachweis einer B-Zellklonalität 
-Immunglobulin-Leichtkette (IGK und IGL): dominantes Rearrangement mit $$$ Frequenz vor polyklonalem Hintergrund / kein Nachweis einer B-Zellklonalität
+Anzahl der nachgewiesenen Rearrangements: Immunoglobulin-Schwerekette (IGH)/ Immunglobulin-Leichtkette (IGK und IGL)
+Immunglobulin-Schwerekette (IGH): dominantes Rearrangement mit Frequenz vor polyklonalem Hintergrund/ kein Nachweis einer B-Zellklonalität 
+Immunglobulin-Leichtkette (IGK und IGL): dominantes Rearrangement mit Frequenz vor polyklonalem Hintergrund / kein Nachweis einer B-Zellklonalität.
