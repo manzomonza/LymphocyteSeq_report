@@ -35,7 +35,7 @@ Sample ID: `r params$sample_ID`
 
 ## Eingabe Dateien
 ```{r}
-DT::datatable(params$panel_df)
+as.data.frame(params$panel_df)
 ```
 
 

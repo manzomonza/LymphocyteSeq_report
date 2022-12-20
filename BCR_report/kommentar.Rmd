@@ -1,3 +1,20 @@
 ## Kommentar
-Das häufigste Rearrangement wurde mit einer Frequenz von % für Immunglobulin-Schwerkette (IGH) und % für Immunglobulin-Leichtkette (IGK und IGL) nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt x (IGH) resp. x (IGK und IGL).Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
+
+```{r, include=FALSE}
+panel_df = params$panel_df
+print(panel_df)
+filep = panel_df$filepath[1]
+clonsum = clonesum_read(filep)
+topfreq_igh = LymphocyteSeq::topClone(clonsum)
+panel_df = params$panel_df
+print(panel_df)
+filep = panel_df$filepath[2]
+clonsum = clonesum_read(filep)
+topfreq_igkl = LymphocyteSeq::topClone(clonsum)
+```
+
+
+Das häufigste Rearrangement wurde mit einer Frequenz von `r topfreq_igh`% für Immunglobulin-Schwerkette (IGH) und `r topfreq_igkl`% für Immunglobulin-Leichtkette (IGK und IGL) nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt x (IGH) resp. x (IGK und IGL).Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
+
+XXXX\n
 Diese Werte werden hier klar erfüllt. 

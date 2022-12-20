@@ -2,9 +2,12 @@
 ### Top clone
 
 ```{r, include=FALSE}
-file1 = params$panel_df[1]
-clonsum = clonesum_read(file1)
-topfreq = LymphocyteSeq::topClone(clonsum)
+panel_df = params$panel_df
+print(panel_df)
+filep = panel_df$filepath[1]
+clonsum = clonesum_read(filep)
+topfreq_igh = LymphocyteSeq::topClone(clonsum)
 ```
 
-`r topfreq`
+Häufigste Klonfrequenz: `r topfreq_igh`% 
+

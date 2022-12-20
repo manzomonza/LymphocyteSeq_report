@@ -1,1 +1,12 @@
-## IGK und IGL
+## IGK L
+### Top clone
+
+```{r, include=FALSE}
+panel_df = params$panel_df
+print(panel_df)
+filep = panel_df$filepath[2]
+clonsum = clonesum_read(filep)
+topfreq_igkl = LymphocyteSeq::topClone(clonsum)
+```
+
+Häufigste Klonfrequenz: `r topfreq_igkl`% 
