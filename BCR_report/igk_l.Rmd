@@ -1,5 +1,4 @@
-## IGK L
-### Top clone
+#### Top clone
 
 ```{r, include=FALSE}
 panel_df = params$panel_df

@@ -11,6 +11,7 @@ params:
   panel_df: ""
   output_file: ""
   sample_ID: ""
+  lineage_df: ""
 editor_options: 
   chunk_output_type: console
 ---
@@ -20,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Load libs and data
 suppressPackageStartupMessages({
-  library(knitr)
+library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(gridExtra)
@@ -31,35 +32,46 @@ library(LymphocyteSeq)
 })
 ```
 
-Sample ID: `r params$sample_ID`
+### Sample ID: `r params$sample_ID`
 
-## Eingabe Dateien
-```{r}
-as.data.frame(params$panel_df)
-```
+## Resultate {.tabset}
 
-
-```{r child='BCR_report/diagnose.Rmd', include=TRUE}
-```
-
-
-```{r child='BCR_report/kommentar.Rmd', include=TRUE}
-```
-
-
-```{r child='BCR_report/methodik.Rmd', include=TRUE}
-```
-
-
+### IGH
 ```{r child='BCR_report/igh.Rmd', include=TRUE}
 ```
 
+### IGH lineage
+```{r child='BCR_report/igh_lineage_summary.Rmd', include=TRUE}
+```
 
+### IGKL
 ```{r child='BCR_report/igk_l.Rmd', include=TRUE}
 ```
 
+### IGK_L_lineage
+```{r child='BCR_report/igk_l_lineage_summary.Rmd', include=TRUE}
+```
 
-## R- und Paketversionen
+
+## Reporting {-}
+### Diagnose
+```{r child='BCR_report/diagnose.Rmd', include=TRUE}
+```
+
+### Kommentar
+```{r child='BCR_report/kommentar.Rmd', include=TRUE}
+```
+
+### Methodik
+```{r child='BCR_report/methodik.Rmd', include=TRUE}
+```
+
+### Eingabe Dateien
+```{r}
+DT::datatable(params$panel_df)
+```
+
+### R- und Paketversionen
 ```{r, include=TRUE}
 devtools::session_info()
 ```

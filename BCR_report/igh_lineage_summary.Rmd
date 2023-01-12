@@ -1,0 +1,26 @@
+
+```{r, include=FALSE}
+filep  = lineage_df$filepath[1]
+lineage = clonesum_read(filep)
+```
+
+#### Top 25 clones
+```{r}
+head(lineage, n = 25)
+```
+
+#### Top clone frequency
+
+```{r}
+top_freq = round(as.numeric(lineage[1,]$lineage_frequency)*100,2)
+```
+
+Top clone has `r top_freq`% frequency.
+
+
+```{r, include=TRUE}
+head(lineage)
+list_topclone_results = topClone_analysis_lineage(lineage, i = 1, j = 5)
+```
+
+Top clone is `r list_topclone_results` and this seems incorrect

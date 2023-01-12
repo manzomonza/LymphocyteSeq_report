@@ -1,4 +1,3 @@
-## Kommentar
 
 ```{r, include=FALSE}
 panel_df = params$panel_df
