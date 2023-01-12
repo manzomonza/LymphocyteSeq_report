@@ -2,27 +2,14 @@
 ```{r, include=FALSE}
 filep  = lineage_df$filepath[1]
 lineage = clonesum_read(filep)
-
-selection = head(lineage, n = 25) %>% dplyr::select(lineage_id, variable,top_cdr3aa,lineage_frequency,number_of_clones)
-colnames(selection) = gsub("_", " ",stringr::str_to_title(colnames(selection)))
+selection = top25_lineage_selection(lineage)
 ```
 
 #### Top 25 clones
 ```{r}
-DT::datatable(selection)
+selection %>%
+  kable("html", digits=3) %>%
+  kable_styling(font_size = 12)
 ```
 
-#### Top clone frequency
 
-```{r}
-top_freq = round(as.numeric(lineage[1,]$lineage_frequency)*100,2)
-```
-
-Top clone has `r top_freq`% frequency.
-
-
-```{r, include=TRUE}
-list_topclone_results = topClone_analysis_lineage(lineage, i = 1, j = 5)
-```
-
-Top clone is `r list_topclone_results`
