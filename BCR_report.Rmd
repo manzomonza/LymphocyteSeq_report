@@ -36,6 +36,10 @@ library(LymphocyteSeq)
 
 ## Resultate {.tabset}
 
+### Summary
+```{r child='BCR_report/summary_Table.Rmd', include=TRUE}
+```
+
 ### IGH
 ```{r child='BCR_report/igh.Rmd', include=TRUE}
 ```

@@ -1,0 +1,23 @@
+
+
+```{r, include=FALSE}
+lineages = lapply(lineage_df$filepath, clonesum_read)
+lineage_res = lapply(lineages, function(x) topClone_analysis_lineage(x, i=1,j=5))
+lineage_res = dplyr::bind_rows(lineage_res)
+```
+
+```{r, include=FALSE}
+clonesums = lapply(panel_df$filepath, clonesum_read)
+clone_res = lapply(clonesums, function(x) topClone_analysis_clonesum(x, i=1,j=5))
+clone_res = dplyr::bind_rows(clone_res)
+```
+
+
+```{r, include=TRUE}
+print("THIS IS CLONE RES")
+print(clone_res)
+print("THIS IS LINEAEGE RES")
+print(lineage_res)
+
+dplyr::bind_rows(clone_res,lineage_res)
+```
