@@ -32,6 +32,7 @@ library(LymphocyteSeq)
 })
 panel_df = params$panel_df
 lineage_df = params$lineage_df
+lineage_df$filepath = as.character(lineage_df$filepath)
 ```
 
 ### Sample ID: `r params$sample_ID`
@@ -73,8 +74,11 @@ lineage_df = params$lineage_df
 
 ### Eingabe Dateien
 ```{r}
-DT::datatable(params$panel_df)
+params$panel_df %>%
+  kable("html", digits=3) %>%
+  kable_styling(font_size = 7, full_width = FALSE)
 ```
+
 
 ### R- und Paketversionen
 ```{r, include=TRUE}
