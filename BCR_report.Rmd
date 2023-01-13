@@ -30,6 +30,7 @@ library(tidyverse)
 library(janitor)
 library(LymphocyteSeq)
 })
+panel_df = params$panel_df
 ```
 
 ### Sample ID: `r params$sample_ID`

@@ -1,5 +1,4 @@
 ```{r, include=FALSE, eval=TRUE}
-panel_df = params$panel_df
 filep = panel_df$filepath[2]
 clonsum = clonesum_read(filep)
 clonsum_plotprep = plot_prep(clonsum)
