@@ -1,5 +1,5 @@
 ---
-title: Pan BCR analysis
+title: Pan TCR analysis
 author: University Hospital Basel -- Molecular Diagnostic Unit
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -11,6 +11,7 @@ params:
   panel_df: ""
   output_file: ""
   sample_ID: ""
+  lineage_df: ""
 editor_options: 
   chunk_output_type: console
 ---
@@ -19,6 +20,7 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE)
 
 # Load libs and data
+suppressPackageStartupMessages({
 library(knitr)
 library(kableExtra)
 library(ggplot2)
@@ -27,31 +29,47 @@ library(data.table)
 library(tidyverse)
 library(janitor)
 library(LymphocyteSeq)
+})
 ```
 
-Sample ID: `r params$sample_ID`
+### Sample ID: `r params$sample_ID`
 
-## Eingabe Dateien
+## Resultate {.tabset}
+
+### Summary
+```{r child='TCR_report/summary_Table.Rmd', include=TRUE}
+```
+
+### TCR-gamma
+```{r child='TCR_report/tcrgamma.Rmd', include=TRUE}
+```
+
+### TCR-beta
+```{r child='TCR_report/tcrbeta.Rmd', include=TRUE}
+```
+
+## Reporting {-}
+### Diagnose
+```{r child='TCR_report/diagnose.Rmd', include=TRUE}
+```
+
+### Kommentar
+```{r child='TCR_report/kommentar.Rmd', include=TRUE}
+```
+
+### Methodik
+```{r child='TCR_report/methodik.Rmd', include=TRUE}
+```
+
+### Eingabe Dateien
 ```{r}
-DT::datatable(params$panel_df)
+params$panel_df %>%
+  kable("html", digits=3) %>%
+  kable_styling(font_size = 7, full_width = FALSE)
 ```
 
-## Kommentar
-```{r child='TCR_report/kommentar.Rmd'}
-```
-## Methodik
-```{r child='TCR_report/methodik.Rmd'}
-```
-## IGH
-```{r child='TCR_report/tcrg.Rmd'}
-```
-## IGK und IGL
-```{r child='TCR_report/tcrb.Rmd'}
-```
-
-
-## R- und Paketversionen
-```{r}
+### R- und Paketversionen
+```{r, include=TRUE}
 devtools::session_info()
 ```
 

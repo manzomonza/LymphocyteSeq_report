@@ -40,12 +40,8 @@ library(LymphocyteSeq)
 ```{r child='BCR_report/summary_Table.Rmd', include=TRUE}
 ```
 
-```{r}
-print(params$panel_df)
-```
-
 ### IGH
-```{r child='BCR_report/igh.Rmd', include=FALSE}
+```{r child='BCR_report/igh.Rmd', include=TRUE}
 ```
 
 ### IGH lineage
@@ -59,7 +55,6 @@ print(params$panel_df)
 ### IGK_L_lineage
 ```{r child='BCR_report/igk_l_lineage_summary.Rmd', include=TRUE}
 ```
-
 
 ## Reporting {-}
 ### Diagnose

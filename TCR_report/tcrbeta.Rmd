@@ -1,12 +1,13 @@
-```{r, include=FALSE, eval=TRUE}
+```{r, include=FALSE}
 panel_df = params$panel_df
+print(panel_df)
 filep = panel_df$filepath[2]
 clonsum = clonesum_read(filep)
 clonsum_plotprep = plot_prep(clonsum)
 ```
 
 ```{r, include=FALSE}
-selection = top25_clonesum_selection_bcr(clonsum)
+selection = top25_clonesum_selection_tcr(clonsum)
 ```
 
 #### Top 25 clones
@@ -24,6 +25,7 @@ r.counts = total_read_counts(clonsum_plotprep)
 clo.fr = clone_frequencies_clonsum(clonsum_plotprep)
 grid.arrange(r.counts,clo.fr,ncol=2,nrow=1)
 ```
+
 
 ```{r, echo=FALSE, fig.cap = "**Figure 2**. (Left panel) Clone frequency versus rank. Blue dotted line is set at 1% of clone frequency. (Right panel) Strand bias of reads is shown as log2(strand_bias) versus rank. Largest clone is colored in blue."}
 
