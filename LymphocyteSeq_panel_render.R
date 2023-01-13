@@ -51,8 +51,7 @@ for(e in panel_df){
                       params = list(panel_df = e,
                                     sample_ID = sample_ID,
                                     lineage_df = lineage_df),
-                                    output_file = html_filename,
-                      )
+                                    output_file = html_filename)
   }else if(panel_decision(e) == 'TCR'){
     rmarkdown::render(panel_specific_rmarkdown,
                       params = list(panel_df = e,
