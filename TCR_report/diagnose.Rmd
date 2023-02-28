@@ -1,4 +1,22 @@
-Resultat der Parallelsequenzierung mit dem Oncomine BCR Pan-Clonality Assay (DNA):
-Anzahl der nachgewiesenen Rearrangements: Immunoglobulin-Schwerekette (IGH)/ Immunglobulin-Leichtkette (IGK und IGL)
-Immunglobulin-Schwerekette (IGH): dominantes Rearrangement mit Frequenz vor polyklonalem Hintergrund/ kein Nachweis einer B-Zellklonalität 
-Immunglobulin-Leichtkette (IGK und IGL): dominantes Rearrangement mit Frequenz vor polyklonalem Hintergrund / kein Nachweis einer B-Zellklonalität.
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r, include=FALSE}
+filep = panel_df$filepath[1]
+clonsum_gamma = clonesum_read(filep)
+
+filep = panel_df$filepath[2]
+clonsum_beta = clonesum_read(filep)
+
+
+```
+
+
+Resultat der Parallelsequenzierung mit dem Oncomine TCR Pan-Clonality Assay (DNA):
+Anzahl der nachgewiesenen Rearrangements am T-Zell Rezeptor Gamma Locus:
+`r nrow clonsum_gamma`
+
+Anzahl der nachgewiesenen Rearrangements am T-Zell Rezeptor Beta Locus:
+`r nrow clonsum_beta`

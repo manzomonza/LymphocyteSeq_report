@@ -1,3 +1,34 @@
+```{r, include=FALSE}
+### GAMMA 
+filep = panel_df$filepath[1]
+clonsum_gamma = clonesum_read(filep)
+
+gamma_row = clonsum_gamma[1,] %>%
+  dplyr::select(variable, joining, cdr3_aa, cdr3_nt, frequency)
+
+gamma_row[[5]] = round(gamma_row[[5]],2)
+gamma_methodik = paste0(gamma_row, collapse = ", ")
+
+### BETA 
+filep = panel_df$filepath[2]
+clonsum_beta = clonesum_read(filep)
+
+beta_row = clonsum_beta[1,] %>%
+  dplyr::select(variable, joining, cdr3_aa, cdr3_nt, frequency)
+
+beta_row[[5]] = round(beta_row[[5]],2)
+beta_methodik = paste0(beta_row, collapse = ", ")
+
+
+```
+
+Sequenz des haeufigsten Rearrangements am T-Zell Rezeptor Gamma Locus:
+`r gamma_methodik`
+
+Sequenz des haeufigsten Rearrangements am T-Zell Rezeptor Beta Locus:
+`r beta_methodik`
+
+DNA wurde vom eingesandten Material extrahiert. Amplifikation der Zielsequenzen und Parallelsequenzierung (Next-Generation Sequencing) der genomischen T-Zell Rezeptors (TCR) Gamma und Beta-Regionen auf der Ion Torrent S5 Plattform unter Verwendung des Ion Torrent TCR Pan-Clonality Assays.
 Der Assay ermöglicht die Bestimmung der Sequenzen der complementarity-determining Region 3 (CDR3) der TCR-Gamma und Beta-Kette. Der Oncomine TCR Pan-Clonality Assay verwendet Multiplex-Ion-Ampliseq-Primers, die auf die FR3-Region des variablen Gens (V-Gen) und die joining Gensegmente (J-Gen) der TCR Gamma und Beta-Rearrangements abzielen und ein ~75-100 bp-Amplikon produzieren. Datenanalyse mittels Torrent Suite und Ion Reporter Software.
  
 Das molekularpathologische Labor nimmt im Rahmen der Qualitätssicherung regelmässig an Ringversuchen von EMQN und QuiP mit Erfolg teil. 
