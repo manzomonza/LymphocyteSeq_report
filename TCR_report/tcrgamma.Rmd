@@ -5,7 +5,6 @@ clonsum_plotprep = plot_prep(clonsum)
 ```
 
 
-
 #### Summary statistics
 
 * Total Read Count = `r sum(clonsum$total_counts)`
