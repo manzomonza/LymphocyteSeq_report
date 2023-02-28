@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r, include=FALSE}
 filep = panel_df$filepath[2]
 clonsum = clonesum_read(filep)
@@ -7,6 +12,25 @@ clonsum_plotprep = plot_prep(clonsum)
 ```{r, include=FALSE}
 selection = top25_clonesum_selection_tcr(clonsum)
 ```
+
+#### Summary statistics
+
+* Total Read Count = `r sum(clonsum$total_counts)`
+* Total Number of Clones detected = `r nrow(clonsum)`
+* Largest clone frequency = `r clone_i_freq(clonsum, i = 1)`
+* Background clone frequencies:
+    * Rank2: `r clone_i_freq(clonsum, i = 2)`
+    * Rank3: `r clone_i_freq(clonsum, i = 3)`
+    * Rank4: `r clone_i_freq(clonsum, i = 4)`
+    * Rank5: `r clone_i_freq(clonsum, i = 5)`
+
+* Ratio largest clone to:
+    * Rank2: `r top_ratio_to_x(clonsum, j = 2)`
+    * Rank3: `r top_ratio_to_x(clonsum, j = 3)`
+    * Rank4: `r top_ratio_to_x(clonsum, j = 4)`
+    * Rank5: `r top_ratio_to_x(clonsum, j = 5)`
+
+
 
 #### Top 25 clones
 ```{r}
