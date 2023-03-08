@@ -5,7 +5,8 @@ j = 5 # 5th row
 ```
 
 ```{r, include=FALSE}
-clonesums = lapply(panel_df$filepath, clonesum_read)
+clone_paths = c(panel_df[which(panel_df$index == 1),]$filepath,panel_df[which(panel_df$index == 2),]$filepath)
+clonesums = lapply(clone_paths, clonesum_read)
 clone_res = lapply(clonesums, function(x) topClone_analysis_clonesum(x, i=i,j=j))
 ```
 
