@@ -1,3 +1,4 @@
+*.Rhistory
 .Rhistory
 lymphseq.Rproj
 .DS_Store
