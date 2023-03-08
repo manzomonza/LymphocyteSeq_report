@@ -1,8 +1,8 @@
 ```{r, include=FALSE}
-filep = panel_df$filepath[1]
+filep = panel_df[which(panel_df$index == 1)]$filepath
 clonsum_gamma = clonesum_read(filep)
 
-filep = panel_df$filepath[2]
+filep = panel_df[which(panel_df$index == 2)]$filepath
 clonsum_beta = clonesum_read(filep)
 top_ratio_to_x(clonsum, j  = 5)
 ```
