@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 ```{r, include=FALSE}
-filep = panel_df[which(panel_df$index == 2)]$filepath
+filep = panel_df[which(panel_df$index == 2),]$filepath
 clonsum = clonesum_read(filep)
 clonsum_plotprep = plot_prep(clonsum)
 ```

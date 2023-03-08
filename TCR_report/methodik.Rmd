@@ -1,6 +1,6 @@
 ```{r, include=FALSE}
 ### GAMMA 
-filep = panel_df[which(panel_df$index == 1)]$filepath
+filep = panel_df[which(panel_df$index == 1),]$filepath
 clonsum_gamma = clonesum_read(filep)
 
 gamma_row = clonsum_gamma[1,] %>%
@@ -10,7 +10,7 @@ gamma_row = clonsum_gamma[1,] %>%
 gamma_methodik = paste0(gamma_row, collapse = ", ")
 
 ### BETA 
-filep = panel_df[which(panel_df$index == 2)]$filepath
+filep = panel_df[which(panel_df$index == 2),]$filepath
 clonsum_beta = clonesum_read(filep)
 
 beta_row = clonsum_beta[1,] %>%
