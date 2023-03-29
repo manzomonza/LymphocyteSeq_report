@@ -1,5 +1,19 @@
+```{r, include=FALSE}
+panel_df = params$panel_df
+filep = panel_df[which(panel_df$index == 1),]$filepath
+bcrh = clonesum_read(filep)
+
+filep = panel_df[which(panel_df$index == 2),]$filepath
+bcrkl = clonesum_read(filep)
+
+
+topfreq_igh = LymphocyteSeq::topClone(bcrh)
+topfreq_igkl = LymphocyteSeq::topClone(bcrkl)
+```
+
+
 Sequenz des häufigsten Rearrangements am IGH: `r topfreq_igh`
-Sequenz des häufigsten Rearrangements am IGK/IGL:
+Sequenz des häufigsten Rearrangements am IGK/IGL:  `r topfreq_igkl`
 DNA wurde vom eingesandten Material extrahiert. Amplifikation der Zielsequenzen und Parallelsequenzierung (Next-Generation Sequencing) der genomischen CDR3-Regionen der IGH-, IGK- und IGL-Ketten, inklusive Kappa-Deletionselement und C-Intron auf der Ion Torrent S5 Plattform unter Verwendung des Ion Torrent BCR Pan-Clonality Assays. Der Oncomine BCR Pan-Clonality Assay verwendet Multiplex-Ion-Ampliseq-Primers, die auf die FR3-Region des variablen Gens (V-Gen) und der verbindenden Gensegmente von IGH-, IGK- und IGL-Rearrangements, darunter Rearrangements, die das Kappa Deletionselement (KDE) in genomischer DNA enthalten, die 50-110 bp Amplikons erzeugen. Datenanalyse mittels Torrent Suite und Ion Reporter Software.
 Der Oncomine BCR Pan-Clonality Assay ist noch nicht für die Routine-Diagnostik validiert worden.
 Das molekularpathologische Labor nimmt im Rahmen der Qualitätssicherung regelmässig an Ringversuchen von EMQN und QuiP mit Erfolg teil.
