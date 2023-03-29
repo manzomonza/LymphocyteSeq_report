@@ -12,7 +12,7 @@ clonsum_beta = clonesum_read(filep)
 
 Resultat der Parallelsequenzierung mit dem Oncomine TCR Pan-Clonality Assay (DNA):  
 Anzahl der nachgewiesenen Rearrangements am T-Zell Rezeptor Gamma Locus:  
-`r nrow(clonsum_gamma)`
+`r nrow(clonsum_gamma)`  
 
 Anzahl der nachgewiesenen Rearrangements am T-Zell Rezeptor Beta Locus:  
 `r nrow(clonsum_beta)`

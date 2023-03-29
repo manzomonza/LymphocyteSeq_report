@@ -21,7 +21,7 @@ igkl_ratio = topClone_analysis_clonesum(bcrkl, 1,5)$ratio
 ```
 
 
-Das häufigste Rearrangement wurde mit einer Frequenz von `r topfreq_igh`% für Immunglobulin-Schwerkette (IGH) und `r topfreq_igkl`% für Immunglobulin-Leichtkette (IGK und IGL) nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt `r igh_ratio`x (IGH) resp. `r igkl_ratio`x (IGK und IGL). Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
+Das häufigste Rearrangement wurde mit einer Frequenz von `r topfreq_igh`% für Immunglobulin-Schwerkette (IGH) und `r topfreq_igkl`% für Immunglobulin-Leichtkette (IGK und IGL) nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt `r igh_ratio`x (IGH) resp. `r igkl_ratio`x (IGK und IGL). Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10x des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
 
 XXXX\n
 Diese Werte werden hier klar erfüllt

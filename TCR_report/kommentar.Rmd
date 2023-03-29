@@ -11,7 +11,7 @@ top_ratio_to_x(clonsum, j  = 5)
 Das häufigste Rearrangement dieser Probe wurde mit einer Frequenz von 
 `r clone_i_freq(clonsum_gamma, i = 1)` für T-Zell-Rezeptor-gamma und `r clone_i_freq(clonsum_beta, i = 1)` für T-Zell-Rezeptor-beta nachgewiesen. Das Verhältnis zwischen dem dominanten Rearrangement und dem Hintergrund beträgt `r top_ratio_to_x(clonsum_gamma, j = 5)`x (gamma) und `r top_ratio_to_x(clonsum_beta, j = 5)`x (beta). 
 
-Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10-fache des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
+Ein dominantes Rearrangement wird definiert, wenn die zugehoerigen Sequenzen mehr als 2.5% der gesamten Reads und mehr als das 10x des polyklonalen Hintergrunds betragen (Empfehlung von Arcila, Maria E. et.al. 2019, PMID: 30590126).
 
 <br>
 
