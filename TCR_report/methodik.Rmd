@@ -22,10 +22,10 @@ beta_methodik = paste0(beta_row, collapse = ", ")
 
 ```
 
-Sequenz des häufigsten Rearrangements am T-Zell Rezeptor Gamma Locus:  
+Sequenz des häufigsten Rearrangements am T-Zell Rezeptor Gamma Locus (V-Gen, J-Gen, CDR3 Aminokörper, CDR3 Nukleotidseq.):  
 `r gamma_methodik`
 
-Sequenz des häufigsten Rearrangements am T-Zell Rezeptor Beta Locus:  
+Sequenz des häufigsten Rearrangements am T-Zell Rezeptor Beta Locus (V-Gen, J-Gen, CDR3 Aminokörper, CDR3 Nukleotidseq.):  
 `r beta_methodik`  
 
 DNA wurde vom eingesandten Material extrahiert. Amplifikation der Zielsequenzen und Parallelsequenzierung (Next-Generation Sequencing) der genomischen T-Zell Rezeptors (TCR) Gamma und Beta-Regionen auf der Ion Torrent S5 Plattform unter Verwendung des Ion Torrent TCR Pan-Clonality Assays.
