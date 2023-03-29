@@ -12,14 +12,14 @@ bcrh_row = bcrh[1,] %>%
   dplyr::arrange(desc(frequency)) %>%
   dplyr::select(variable, joining, cdr3_aa, cdr3_nt)
 
-bcrh_methodik = paste0(gamma_row, collapse = ", ")
+bcrh_methodik = paste0(bcrh_row, collapse = ", ")
 
 ### BCR KL 
 bcrkl_row = bcrkl[1,] %>%
     dplyr::arrange(desc(frequency)) %>%
   dplyr::select(variable, joining, cdr3_aa, cdr3_nt)
 
-bcrkl_methodik = paste0(beta_row, collapse = ", ")
+bcrkl_methodik = paste0(bcrkl_row, collapse = ", ")
 
 ```
 
