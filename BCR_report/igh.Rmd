@@ -1,5 +1,10 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r, include=FALSE, eval=TRUE}
-filep = panel_df$filepath[1]
+filep = panel_df[which(panel_df$index == 1),]$filepath
 clonsum = clonesum_read(filep)
 clonsum_plotprep = plot_prep(clonsum)
 ```

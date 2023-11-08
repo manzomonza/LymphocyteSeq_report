@@ -1,5 +1,5 @@
 ```{r, include=FALSE}
-filep = panel_df$filepath[2]
+filep = panel_df[which(panel_df$index == 2),]$filepath
 clonsum = clonesum_read(filep)
 clonsum_plotprep = plot_prep(clonsum)
 ```
